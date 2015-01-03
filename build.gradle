@@ -1,0 +1,52 @@
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+Logger slf4jLogger = LoggerFactory.getLogger('some-logger')
+slf4jLogger.info('An info log message logged using SLF4j')
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.5
+version = '1.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'ADTL', 'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
+
+configurations {
+    driver
+}
+
+dependencies {
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+    compile group: 'org.apache.commons', name:'commons-lang3',version:'3.3.2'
+    compile group: 'org.uncommons.watchmaker', name:'watchmaker-framework', version:'0.7.1'
+    
+    
+    
+    compile group: 'dom4j', name:'dom4j', version:'1.6.1'
+    compile group: 'org.slf4j', name:'slf4j-api', version:'1.7.6'
+    compile group: 'org.slf4j', name:'slf4j-log4j12', version:'1.7.6'
+    compile group: 'commons-lang', name:'commons-lang', version:'2.6'
+	            
+	        
+            
+            
+    
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+logging.captureStandardOutput LogLevel.DEBUG
