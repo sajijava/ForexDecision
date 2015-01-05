@@ -10,5 +10,5 @@ public interface IndicatorAgent {
 	public int indexOffset();
 	public List<Action> typeOfOutcome();
 	public String getName();
-
+	public AgentMetric getMetric();
 }

@@ -4,11 +4,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.snr.fxstrategyea.agent.AgentMetric;
 import com.snr.fxstrategyea.agent.IndicatorAgent;
 import com.snr.fxstrategyea.model.OHLC;
 
 public abstract class IndicatorAgentImpl implements IndicatorAgent {
 
+	private AgentMetric metric = new AgentMetric();
+	
 	protected List<Double> getClose(List<OHLC> data){
 		
 		List<Double> close = new LinkedList<Double>();
@@ -33,6 +36,8 @@ public abstract class IndicatorAgentImpl implements IndicatorAgent {
 	protected int T2(List<?> list){
 		return getTnIndex(2, list);
 	}
-
+	public AgentMetric getMetric() {
+		return metric;
+	}
 
 }

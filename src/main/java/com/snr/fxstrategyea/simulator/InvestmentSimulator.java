@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.snr.fxstrategyea.agent.IndicatorAgent;
 import com.snr.fxstrategyea.agent.impl.MACrossOverAgent;
@@ -20,24 +20,16 @@ import com.snr.fxstrategyea.model.OHLC;
 
 public class InvestmentSimulator {
 
+	private Logger logger = LoggerFactory.getLogger(InvestmentSimulator.class);
 	private List<Transaction> simResult = new LinkedList<Transaction>();
 	private List<OHLC> data = null;
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd"); 
 	private InvestmentConfig invConfig;
-	private Map<MetricKey,Double> metrics = new HashMap<MetricKey,Double>();
+	private Map<String,IndicatorAgent> agentMap = new HashMap<String,IndicatorAgent>();
 	public InvestmentSimulator(InvestmentConfig config) throws IOException, ParseException{
 		data = new LinkedList<OHLC>();
 		this.invConfig = config;
 		loadData(new BufferedReader(new FileReader(this.invConfig.getDataAbsoluteFileName())));
-
-		for(OHLC o : data){
-			//			System.out.println(o);
-		}
-		metrics.put(MetricKey.LONG_COUNT,0d);
-		metrics.put(MetricKey.SHORT_COUNT,0d);
-		metrics.put(MetricKey.BIGGEST_WIN,0d);
-		metrics.put(MetricKey.BIGGEST_DRAW,0d);
-
 	}
 	public void loadData(BufferedReader br) throws IOException, ParseException{
 		String line = "";
@@ -52,34 +44,35 @@ public class InvestmentSimulator {
 		if(agents == null || agents.isEmpty()) throw new IllegalArgumentException("No Agents to simulate");
 		Collections.sort(data);
 		for(IndicatorAgent agent : agents){
+			agentMap.put(agent.getName(),agent);
 			for(int i = agent.indexOffset() + 1; i < data.size(); i++){
 				switch(agent.getAction(data.subList(i - agent.indexOffset() - 1, i))){
 				case BUY:{
 					if(!checkIfTradeExist()){
-						createOrder(data.get(i),TradeDir.LONG);
+						createOrder(data.get(i),TradeDirection.LONG);
 					}else{
-						closeOrder(data.get(i),TradeDir.LONG);
+						closeOrder(data.get(i),TradeDirection.LONG, agent);
 					}
 
 				}
 				case SELL:{
 					if(!checkIfTradeExist()){
-						createOrder(data.get(i),TradeDir.SHORT);
+						createOrder(data.get(i),TradeDirection.SHORT);
 					}else{
-						closeOrder(data.get(i),TradeDir.SHORT);
+						closeOrder(data.get(i),TradeDirection.SHORT, agent);
 					}
 				}
 				case HOLD:
 					break;
 				}
 			}
-			closeOrder(data.get(data.size() -1),TradeDir.LONG);
-			closeOrder(data.get(data.size() -1),TradeDir.SHORT);
+			closeOrder(data.get(data.size() -1),TradeDirection.LONG,agent);
+			closeOrder(data.get(data.size() -1),TradeDirection.SHORT,agent);
 		}
 		for(Transaction tran : simResult){
-			System.out.println(tran);
+			logger.debug(""+tran);
 		}
-
+		logger.debug(""+this.agentMap);
 	}
 	private boolean checkIfTradeExist(){
 		int count = 0;
@@ -89,7 +82,7 @@ public class InvestmentSimulator {
 		}
 		return count > 0;
 	}
-	private void createOrder(OHLC ohlc, TradeDir dir)
+	private void createOrder(OHLC ohlc, TradeDirection dir)
 	{
 		Transaction tran = new Transaction();
 		tran.setStatus(OrderStatus.OPEN);
@@ -100,13 +93,13 @@ public class InvestmentSimulator {
 		}
 		switch(dir){
 		case LONG:{
-			tran.setDir(TradeDir.LONG);
+			tran.setDir(TradeDirection.LONG);
 			tran.setBuyDate(ohlc.getDate());
 			tran.setBuyPrice(ohlc.getClose());
 			break;	
 		}
 		case SHORT:{
-			tran.setDir(TradeDir.SHORT);
+			tran.setDir(TradeDirection.SHORT);
 			tran.setSellDate(ohlc.getDate());
 			tran.setSellPrice(ohlc.getClose());
 			break;
@@ -115,7 +108,7 @@ public class InvestmentSimulator {
 		tran.setUnits(calcUnits(tran));
 		simResult.add(tran);
 	}
-	private void closeOrder(OHLC ohlc, TradeDir dir){
+	private void closeOrder(OHLC ohlc, TradeDirection dir,IndicatorAgent agent){
 		for(Transaction tran : simResult){
 			if(tran.getStatus() == OrderStatus.OPEN){
 				switch(dir){
@@ -125,7 +118,13 @@ public class InvestmentSimulator {
 						tran.setSellPrice(ohlc.getClose());
 						tran.setStatus(OrderStatus.CLOSE);
 						tran.setEndingBal(calcEndingBalance(tran));
-						this.metrics.put(MetricKey.LONG_COUNT, new Double(this.metrics.get(MetricKey.LONG_COUNT).intValue()+1));
+						
+						this.agentMap.get(agent.getName()).getMetric().addLongCount();
+
+						if(tran.getEndingBal() > tran.getStartingBal()) 
+							this.agentMap.get(agent.getName()).getMetric().addLongProfitableCount();
+						
+						this.agentMap.get(agent.getName()).getMetric().addLongGL(tran.getEndingBal() - tran.getStartingBal());
 					}				
 					break;
 				}
@@ -135,17 +134,23 @@ public class InvestmentSimulator {
 						tran.setBuyPrice(ohlc.getClose());
 						tran.setStatus(OrderStatus.CLOSE);
 						tran.setEndingBal(calcEndingBalance(tran));
-						this.metrics.put(MetricKey.SHORT_COUNT, new Double(this.metrics.get(MetricKey.SHORT_COUNT).intValue()+1));
+
+						this.agentMap.get(agent.getName()).getMetric().addShortCount();
+
+						if(tran.getEndingBal() > tran.getStartingBal()) 
+							this.agentMap.get(agent.getName()).getMetric().addShortProfitableCount();
+						
+						this.agentMap.get(agent.getName()).getMetric().addShortGL(tran.getEndingBal() - tran.getStartingBal());
 					}
 					break;
 				}			
 				}
-				if(tran.getStatus() == OrderStatus.CLOSE){
-					double diff = (tran.getDir() == TradeDir.LONG?tran.getSellPrice() - tran.getBuyPrice():tran.getBuyPrice() - tran.getSellPrice()) * tran.getUnits();
+/*				if(tran.getStatus() == OrderStatus.CLOSE){
+					double diff = (tran.getDir() == TradeDirection.LONG?tran.getSellPrice() - tran.getBuyPrice():tran.getBuyPrice() - tran.getSellPrice()) * tran.getUnits();
 					if( diff > this.metrics.get(MetricKey.BIGGEST_WIN))  this.metrics.put(MetricKey.BIGGEST_WIN, diff);
 					if( diff < this.metrics.get(MetricKey.BIGGEST_DRAW))  this.metrics.put(MetricKey.BIGGEST_DRAW, diff);
 				}
-
+*/
 			}
 
 		}
@@ -160,18 +165,12 @@ public class InvestmentSimulator {
 	}
 
 	private double calcEndingBalance(Transaction tran){
-		double entryAmt = tran.getStartingBal() - (tran.getUnits() * (tran.getDir() == TradeDir.LONG?tran.getBuyPrice():tran.getSellPrice())) - this.invConfig.getComission();
-		double exitAmt = (tran.getUnits() * (tran.getDir() == TradeDir.LONG?tran.getSellPrice():tran.getBuyPrice())) - this.invConfig.getComission();
+		double entryAmt = tran.getStartingBal() - (tran.getUnits() * (tran.getDir() == TradeDirection.LONG?tran.getBuyPrice():tran.getSellPrice())) - this.invConfig.getComission();
+		double exitAmt = (tran.getUnits() * (tran.getDir() == TradeDirection.LONG?tran.getSellPrice():tran.getBuyPrice())) - this.invConfig.getComission();
 		return entryAmt + exitAmt;
 	}
-	public void summary(){
-		String summary  = "Number of Trades : " + simResult.size()+
-				"\n No. Of Long : {1}" +this.metrics.get(MetricKey.LONG_COUNT).intValue()+
-				"\n No. Of Short : {2}" +this.metrics.get(MetricKey.SHORT_COUNT).intValue()+
-				"\n Biggest Win : {3}" +this.metrics.get(MetricKey.BIGGEST_WIN)+
-				"\n Biggest drawdown : {4}" +this.metrics.get(MetricKey.BIGGEST_DRAW)+
-				"\n Total Equity : {5}"+( this.simResult.get(simResult.size() -1 ).getEndingBal() - this.simResult.get(0).getStartingBal());
-		System.out.println(summary);
+	public Map<String,IndicatorAgent> getAgentMap(){
+		return this.agentMap;
 	}
 
 	public static void main(String[] args) {
@@ -187,7 +186,6 @@ public class InvestmentSimulator {
 			List<IndicatorAgent> agents = new LinkedList<IndicatorAgent>();
 			agents.add(new MACrossOverAgent(13,55));
 			sim.simulate(agents);
-			sim.summary();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
@@ -196,89 +194,4 @@ public class InvestmentSimulator {
 		}
 	}
 
-}
-class Transaction{
-	private Date buyDate;
-	private Double buyPrice;
-	private Date sellDate;
-	private Double sellPrice;
-	private TradeDir dir;
-	private OrderStatus status;
-	private int units;
-	private double startingBal;
-	private double endingBal;
-
-
-	public Date getBuyDate() {
-		return buyDate;
-	}
-	public void setBuyDate(Date buyDate) {
-		this.buyDate = buyDate;
-	}
-	public Double getBuyPrice() {
-		return buyPrice;
-	}
-	public void setBuyPrice(Double buyPrice) {
-		this.buyPrice = buyPrice;
-	}
-	public Date getSellDate() {
-		return sellDate;
-	}
-	public void setSellDate(Date sellDate) {
-		this.sellDate = sellDate;
-	}
-	public Double getSellPrice() {
-		return sellPrice;
-	}
-	public void setSellPrice(Double sellPrice) {
-		this.sellPrice = sellPrice;
-	}
-	public TradeDir getDir() {
-		return dir;
-	}
-	public void setDir(TradeDir dir) {
-		this.dir = dir;
-	}
-	public OrderStatus getStatus() {
-		return status;
-	}
-	public void setStatus(OrderStatus status) {
-		this.status = status;
-	}
-
-
-	public int getUnits() {
-		return units;
-	}
-	public void setUnits(int units) {
-		this.units = units;
-	}
-	public double getStartingBal() {
-		return startingBal;
-	}
-	public void setStartingBal(double startingBal) {
-		this.startingBal = startingBal;
-	}
-	public double getEndingBal() {
-		return endingBal;
-	}
-	public void setEndingBal(double endingBal) {
-		this.endingBal = endingBal;
-	}
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
-
-}
-enum OrderStatus{
-	OPEN,CLOSE;
-}
-enum TradeDir{
-	LONG,SHORT
-}
-enum MetricKey{
-	LONG_COUNT, SHORT_COUNT,
-	BIGGEST_WIN, BIGGEST_DRAW;
 }
