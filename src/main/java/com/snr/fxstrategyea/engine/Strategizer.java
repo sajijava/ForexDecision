@@ -15,7 +15,7 @@ import org.uncommons.watchmaker.framework.SelectionStrategy;
 import org.uncommons.watchmaker.framework.operators.EvolutionPipeline;
 import org.uncommons.watchmaker.framework.termination.TargetFitness;
 
-public class StrategizerEngine {
+public class Strategizer {
 
 	CandidateFactory<String> factory;
 	List<EvolutionaryOperator<String>> operators;
@@ -23,7 +23,7 @@ public class StrategizerEngine {
 	SelectionStrategy<Object> selection;
 	
 	
-	public StrategizerEngine(CandidateFactory<String> factory,
+	public Strategizer(CandidateFactory<String> factory,
 			List<EvolutionaryOperator<String>> operators,
 			FitnessEvaluator<String> fitnessEvaluator,
 			SelectionStrategy<Object> selection) {

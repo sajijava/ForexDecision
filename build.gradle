@@ -47,6 +47,8 @@ dependencies {
             
     
     testCompile group: 'junit', name: 'junit', version: '4.+'
+    testCompile group: 'easymock', name: 'easymock', version: '2.0'
+    
 }
 
 logging.captureStandardOutput LogLevel.DEBUG

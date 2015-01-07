@@ -11,4 +11,5 @@ public interface IndicatorAgent {
 	public List<Action> typeOfOutcome();
 	public String getName();
 	public AgentMetric getMetric();
+	public void setInfoGain(double infoGain);
 }

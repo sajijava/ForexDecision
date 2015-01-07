@@ -9,6 +9,7 @@ import com.snr.fxstrategyea.model.OHLC;
 public class MACrossOverAgent extends IndicatorAgentImpl{
 	private final int shortMAPeriod;
 	private final int longMAPeriod;
+	private double infoGain;
 	public MACrossOverAgent(final int shortMAPeriod, final int longMAPeriod){
 		this.shortMAPeriod = shortMAPeriod;
 		this.longMAPeriod = longMAPeriod;
@@ -46,6 +47,11 @@ public class MACrossOverAgent extends IndicatorAgentImpl{
 	public String getName() {
 		// TODO Auto-generated method stub
 		return "MACrossOverAgent("+this.shortMAPeriod+","+this.longMAPeriod+")";
+	}
+
+	public void setInfoGain(double infoGain) {
+		this.infoGain = infoGain;
+		
 	}
 	
 	
