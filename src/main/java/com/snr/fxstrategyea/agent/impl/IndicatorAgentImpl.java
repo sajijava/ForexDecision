@@ -11,6 +11,7 @@ import com.snr.fxstrategyea.model.OHLC;
 public abstract class IndicatorAgentImpl implements IndicatorAgent {
 
 	private AgentMetric metric = new AgentMetric();
+	private double infoGain;
 	
 	protected List<Double> getClose(List<OHLC> data){
 		
@@ -38,6 +39,16 @@ public abstract class IndicatorAgentImpl implements IndicatorAgent {
 	}
 	public AgentMetric getMetric() {
 		return metric;
+	}
+
+	
+	public double getInfoGain() {
+		return infoGain;
+	}
+
+	public void setInfoGain(double infoGain) {
+		this.infoGain = infoGain;
+		
 	}
 
 }

@@ -12,4 +12,5 @@ public interface IndicatorAgent {
 	public String getName();
 	public AgentMetric getMetric();
 	public void setInfoGain(double infoGain);
+	public double getInfoGain();
 }

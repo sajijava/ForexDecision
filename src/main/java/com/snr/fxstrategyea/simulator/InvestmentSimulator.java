@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.snr.fxstrategyea.agent.IndicatorAgent;
 import com.snr.fxstrategyea.agent.impl.MACrossOverAgent;
+import com.snr.fxstrategyea.model.DecisionTree;
 import com.snr.fxstrategyea.model.OHLC;
 
 public class InvestmentSimulator {
@@ -38,6 +39,9 @@ public class InvestmentSimulator {
 			String[] obj = line.split(",");
 			data.add(new OHLC(sdf.parse(obj[0]),Double.parseDouble(obj[2]),Double.parseDouble(obj[3]),Double.parseDouble(obj[4]),Double.parseDouble(obj[5]),Double.parseDouble(obj[6])));
 		}
+	}
+	public void simulate(DecisionTree decisionTree){
+		
 	}
 	public void simulate(List<IndicatorAgent> agents){
 		if(data == null) throw new IllegalArgumentException("No Data");
@@ -69,10 +73,10 @@ public class InvestmentSimulator {
 			closeOrder(data.get(data.size() -1),TradeDirection.LONG,agent);
 			closeOrder(data.get(data.size() -1),TradeDirection.SHORT,agent);
 		}
-		for(Transaction tran : simResult){
+/*		for(Transaction tran : simResult){
 			logger.debug(""+tran);
-		}
-		logger.debug(""+this.agentMap);
+		}*/
+		//logger.debug(""+this.agentMap);
 	}
 	private boolean checkIfTradeExist(){
 		int count = 0;

@@ -3,13 +3,16 @@ package com.snr.fxstrategyea.agent.impl;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.snr.fxstrategyea.agent.Action;
 import com.snr.fxstrategyea.model.OHLC;
 
 public class MACrossOverAgent extends IndicatorAgentImpl{
 	private final int shortMAPeriod;
 	private final int longMAPeriod;
-	private double infoGain;
+	
+	
 	public MACrossOverAgent(final int shortMAPeriod, final int longMAPeriod){
 		this.shortMAPeriod = shortMAPeriod;
 		this.longMAPeriod = longMAPeriod;
@@ -49,11 +52,12 @@ public class MACrossOverAgent extends IndicatorAgentImpl{
 		return "MACrossOverAgent("+this.shortMAPeriod+","+this.longMAPeriod+")";
 	}
 
-	public void setInfoGain(double infoGain) {
-		this.infoGain = infoGain;
-		
+	
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return ToStringBuilder.reflectionToString(this);
 	}
-	
-	
 	
 }
