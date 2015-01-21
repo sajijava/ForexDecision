@@ -39,7 +39,7 @@ public class FXStrategyEngine {
 		SelectionStrategy<Object> selection = new RouletteWheelSelection();
 		
 		List<EvolutionaryOperator<DecisionTree>> operators   =  new LinkedList<EvolutionaryOperator<DecisionTree>>();
-		operators.add(new DecisionTreeMutation());
+		operators.add(new DecisionTreeMutation(agentList));
 		operators.add(new DecisionTreeCrossover(2));
 		
 		DecisionTreeFitnessEvaluator evaluator = new DecisionTreeFitnessEvaluator(new InvestmentSimulator(config));

@@ -1,7 +1,8 @@
-package com.snr.fxstrategyea.engine;
+package com.snr.fxstrategyea.ea;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -16,12 +17,14 @@ import com.snr.fxstrategyea.agent.impl.Momentum;
 import com.snr.fxstrategyea.agent.impl.RSI;
 import com.snr.fxstrategyea.agent.impl.Stochastic;
 import com.snr.fxstrategyea.agent.impl.TwezzerCandleStick;
+import com.snr.fxstrategyea.engine.AgentDecisionTreeBuilder;
 import com.snr.fxstrategyea.model.DecisionTree;
 
-public class AgentDecisionTreeBuilderTest {
+public class DecisionTreeMutationTest {
 
 	@Test
-	public void testBuildTree() {
+	public void testMutation() {
+		
 		List<IndicatorAgent> agentList = new ArrayList<IndicatorAgent>();
 		agentList.add(new MACrossOverAgent(5, 20));
 		agentList.add(new BullishEngulfCandleStick());
@@ -33,10 +36,17 @@ public class AgentDecisionTreeBuilderTest {
 		agentList.add(new DojiCandleStick());
 		agentList.add(new BullishHaramiCandleStick());
 		agentList.add(new BullishPiercingCandleStick());
-		
-		AgentDecisionTreeBuilder treeBuilder = new AgentDecisionTreeBuilder(5);
+
+
+		AgentDecisionTreeBuilder treeBuilder = new AgentDecisionTreeBuilder(3);
 		DecisionTree dt = treeBuilder.buildTree(agentList);
-		AgentDecisionTreeBuilder.showDepthFirst(dt.getRootNode());
+		List<DecisionTree> selectedCandidates = new ArrayList<DecisionTree>();
+		selectedCandidates.add(treeBuilder.buildTree(agentList));
+		
+		DecisionTreeMutation mutation = new DecisionTreeMutation(agentList);
+		mutation.apply(selectedCandidates, new Random());
+		
+		
 	}
 
 }

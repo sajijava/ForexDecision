@@ -24,13 +24,14 @@ public class AgentDecisionTreeBuilder {
 		this.maxDepth = maxDepth;
 	}
 	public DecisionTree buildTree(List<IndicatorAgent> agentList){
-	
+
 		Collections.sort(agentList, comparator);
 		DecisionTree dt = new DecisionTree();
+		dt.setDepth(this.maxDepth);
 		Random random = new Random();
 		dt.setRootNode(DecisionTree.getNewNode(getRandomAgent(agentList, random)));
 		buildNode(dt.getRootNode(),agentList,1,random);
-		
+
 		return dt;
 	}
 	private void buildNode(DecisionTree.Node node, List<IndicatorAgent> agentList, int level, Random random)
@@ -50,22 +51,24 @@ public class AgentDecisionTreeBuilder {
 	private IndicatorAgent getRandomAgent(List<IndicatorAgent> agentList, Random random){
 		int nextInt = random.nextInt(agentList.size());
 		return agentList.get(nextInt);
-		
+
 	}
-	public static void showDepthFirst(DecisionTree.Node dt, int tabSpace){
-			
-			System.out.println(dt.getAgent().getClass().getSimpleName());
-			showChildren(dt,tabSpace+1);
-		
+	public static void showDepthFirst(DecisionTree.Node dt){
+
+		System.out.println(dt.getAgent().getClass().getSimpleName());
+		showChildren(dt,1);
+
 	}
 	public static void showChildren(DecisionTree.Node dt, int tabSpace){
 		String tabs = "";
-		for(int i = 0; i < tabSpace; i++)	tabs += "\t";
 
+		for(int i = 0; i < tabSpace; i++)	tabs += "\t";
 		for(Map.Entry<Action, DecisionTree.Node> item: dt.getChildren().entrySet()){
 			if(item.getValue() != null){
-			System.out.println(tabs+item.getKey()+"."+item.getValue().getAgent().getClass().getSimpleName());
-			showChildren(item.getValue(),tabSpace + 1);
+				System.out.println(tabs+item.getKey()+"."+item.getValue().getAgent().getClass().getSimpleName());
+				if(dt.hasChildren()){
+					showChildren(item.getValue(),tabSpace + 1);
+				}
 			}
 		}
 	}

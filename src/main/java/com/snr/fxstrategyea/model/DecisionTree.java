@@ -15,6 +15,16 @@ import com.snr.fxstrategyea.agent.IndicatorAgent;
 public class DecisionTree {
 
 	private Node rootNode;
+	private int depth;
+
+	
+	public int getDepth() {
+		return depth;
+	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
 
 	public Node getRootNode()
 	{
@@ -37,7 +47,7 @@ public class DecisionTree {
 
 	public class Node{
 		private IndicatorAgent agent = null;
-		private final Map<Action,Node> children = new HashMap<Action, DecisionTree.Node>();
+		private Map<Action,Node> children = null;
 
 		public Node(){
 			
@@ -45,10 +55,10 @@ public class DecisionTree {
 		public Node(IndicatorAgent agent) {
 			super();
 			this.agent = agent;
-			setChildren();
 		}
 		private void setChildren(){
 			if(this.agent == null) throw new IllegalArgumentException("No agent found");
+			this.children = new HashMap<Action, DecisionTree.Node>();
 			for(Action action : this.agent.typeOfOutcome()){
 				if(!this.children.containsKey(action))
 					children.put(action, null);
@@ -56,14 +66,20 @@ public class DecisionTree {
 		}
 		
 		public Map<Action, Node> getChildren() {
+			if(children == null){
+				setChildren();
+			}
 			return children;
+		}
+		public boolean hasChildren()
+		{
+			return (this.children != null && this.children.keySet().size() > 0 && !this.children.containsValue(null));
 		}
 		public IndicatorAgent getAgent() {
 			return agent;
 		}
 		public void setAgent(IndicatorAgent agent) {
 			this.agent = agent;
-			setChildren();
 		}
 		@Override
 		public String toString() {
