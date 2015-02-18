@@ -28,9 +28,9 @@ public class MACrossOverAgent extends IndicatorAgentImpl{
 		int short_T0 = shortSMA.size() - 1;
 		int long_T0 = longSMA.size() - 1;
 		
-		if(longSMA.size() > 2 && shortSMA.get(short_T0 - 2) <= longSMA.get(long_T0 - 2) && shortSMA.get(short_T0) > longSMA.get(long_T0) )
+		if(longSMA.size() > 2 && shortSMA.get(short_T0) > longSMA.get(long_T0) )
 			returnAction = Action.BUY;
-		else if(longSMA.size() > 2  && shortSMA.get(short_T0 - 2) >= longSMA.get(long_T0 - 2) && shortSMA.get(short_T0) < longSMA.get(long_T0) )
+		else if(longSMA.size() > 2  && shortSMA.get(short_T0) < longSMA.get(long_T0) )
 			returnAction = Action.SELL;
 		
 		return returnAction;

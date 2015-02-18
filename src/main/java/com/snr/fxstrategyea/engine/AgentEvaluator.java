@@ -1,43 +1,37 @@
 package com.snr.fxstrategyea.engine;
 
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.snr.fxstrategyea.agent.AgentMetric;
 import com.snr.fxstrategyea.agent.IndicatorAgent;
 import com.snr.fxstrategyea.simulator.InvestmentSimulator;
 
 public class AgentEvaluator {
 	private Logger logger = LoggerFactory.getLogger(AgentEvaluator.class);
 	private List<IndicatorAgent> agentList;
-	private InvestmentSimulator simulator;
-	public AgentEvaluator(List<IndicatorAgent> agentList, InvestmentSimulator simulator){
+	private InvestmentSimulator<IndicatorAgent> simulator;
+	public AgentEvaluator(List<IndicatorAgent> agentList, InvestmentSimulator<IndicatorAgent> simulator){
 
 		this.agentList = agentList;
 		this.simulator = simulator;
 	}
 	public void evaluate(){
 
-		simulator.simulate(agentList);
-		Map<String, IndicatorAgent> agentMap = simulator.getAgentMap();
-		calculateInfoGain(agentMap);
-		logger.debug(""+agentMap);
-	}
-	
-	public void calculateInfoGain(Map<String, IndicatorAgent> agentMap){
-		// Calculate entrropy and info gain.
-		for(Map.Entry<String, IndicatorAgent> entry : agentMap.entrySet()){
-			double infoGain = infoGain(entry.getValue());
-			entry.getValue().setInfoGain(infoGain);
+		for(IndicatorAgent agent : this.agentList){
+			simulator.simulate(agent);
+			agent.setInfoGain(infoGain(simulator.getAgentMap()));
 		}
 		
+		//logger.debug(""+agentList);
 	}
-	public double infoGain(IndicatorAgent agent){
+	
+	public double infoGain(AgentMetric agent){
 		double expectedEntropy = 1 - 
-					((((double)agent.getMetric().getLongProfitableCount()/(double)agent.getMetric().getTotalTrade()) * entropy((double)agent.getMetric().getLongProfitableCount()/(double)agent.getMetric().getTotalTrade(),(double)(agent.getMetric().getLongCount() - agent.getMetric().getLongProfitableCount())/(double)agent.getMetric().getTotalTrade()))
-					+ (((double)agent.getMetric().getShortProfitableCount()/(double)agent.getMetric().getTotalTrade()) * entropy((double)agent.getMetric().getShortProfitableCount()/(double)agent.getMetric().getTotalTrade(),(double)(agent.getMetric().getShortCount() - agent.getMetric().getShortProfitableCount())/(double)agent.getMetric().getTotalTrade())));
+					((((double)agent.getLongProfitableCount()/(double)agent.getTotalTrade()) * entropy((double)agent.getLongProfitableCount()/(double)agent.getTotalTrade(),(double)(agent.getLongCount() - agent.getLongProfitableCount())/(double)agent.getTotalTrade()))
+					+ (((double)agent.getShortProfitableCount()/(double)agent.getTotalTrade()) * entropy((double)agent.getShortProfitableCount()/(double)agent.getTotalTrade(),(double)(agent.getShortCount() - agent.getShortProfitableCount())/(double)agent.getTotalTrade())));
 		
 		return expectedEntropy;
 	}

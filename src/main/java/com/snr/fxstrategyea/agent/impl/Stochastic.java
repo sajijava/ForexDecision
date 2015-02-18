@@ -8,14 +8,28 @@ import com.snr.fxstrategyea.model.OHLC;
 
 public class Stochastic extends IndicatorAgentImpl {
 
+	int period = 14;
+	
+	public Stochastic(int period) {
+		this.period = period;
+	}
+
 	public Action getAction(List<OHLC> data) {
-		// TODO Auto-generated method stub
-		return null;
+		Action returnAction = Action.HOLD;
+		
+		int index = data.size() - 1;
+		double k = (data.get(index).getClose() - IndicatorUtil.getLowestLow(data))/(IndicatorUtil.getHighestHigh(data) - IndicatorUtil.getLowestLow(data)); 
+		if(k <= 20){
+			returnAction = Action.BUY;
+		}else if(k >= 80){
+			returnAction = Action.SELL;
+		}
+		return returnAction;
 	}
 
 	public int indexOffset() {
 		// TODO Auto-generated method stub
-		return 0;
+		return this.period;
 	}
 
 	public List<Action> typeOfOutcome() {
@@ -25,7 +39,7 @@ public class Stochastic extends IndicatorAgentImpl {
 
 	public String getName() {
 		// TODO Auto-generated method stub
-		return null;
+		return "Stochastic("+this.period+")";
 	}
-
+	
 }

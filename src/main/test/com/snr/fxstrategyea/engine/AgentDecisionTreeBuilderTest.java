@@ -24,16 +24,7 @@ public class AgentDecisionTreeBuilderTest {
 	public void testBuildTree() {
 		List<IndicatorAgent> agentList = new ArrayList<IndicatorAgent>();
 		agentList.add(new MACrossOverAgent(5, 20));
-		agentList.add(new BullishEngulfCandleStick());
-		agentList.add(new BearishEngulfCandleStick());
-		agentList.add(new TwezzerCandleStick());
-		agentList.add(new Stochastic());
-		agentList.add(new RSI());
-		agentList.add(new Momentum());
-		agentList.add(new DojiCandleStick());
-		agentList.add(new BullishHaramiCandleStick());
-		agentList.add(new BullishPiercingCandleStick());
-		
+
 		AgentDecisionTreeBuilder treeBuilder = new AgentDecisionTreeBuilder(5);
 		DecisionTree dt = treeBuilder.buildTree(agentList);
 		AgentDecisionTreeBuilder.showDepthFirst(dt.getRootNode());

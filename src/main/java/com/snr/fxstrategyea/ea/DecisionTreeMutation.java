@@ -10,7 +10,6 @@ import org.uncommons.watchmaker.framework.EvolutionaryOperator;
 
 import com.snr.fxstrategyea.agent.Action;
 import com.snr.fxstrategyea.agent.IndicatorAgent;
-import com.snr.fxstrategyea.engine.AgentDecisionTreeBuilder;
 import com.snr.fxstrategyea.model.DecisionTree;
 
 /*
@@ -29,18 +28,22 @@ public class DecisionTreeMutation implements EvolutionaryOperator<DecisionTree>{
 		this.agentList = agentList;
 	}
 	public List<DecisionTree> apply(List<DecisionTree> selectedCandidates,Random rng) {
-		
+		logger.info("Mutating with candidates size {}",selectedCandidates.size());
 		List<DecisionTree> mutated = new ArrayList<DecisionTree>(selectedCandidates.size());
 		for(DecisionTree tree : selectedCandidates){
-			logger.info("Before Mutation");
-			AgentDecisionTreeBuilder.showDepthFirst(tree.getRootNode());
+			//AgentDecisionTreeBuilder.showDepthFirst(tree.getRootNode());
 			List<Action> actionList = new ArrayList<Action>();
 			DecisionTreeHelper.buildPath(tree.getRootNode(), tree.getDepth(), rng, actionList);
-			logger.info("Action List "+actionList);
-			mutate(tree.getRootNode(),this.agentList.get(rng.nextInt(this.agentList.size())),actionList);
-			logger.info("after Mutation");
-			AgentDecisionTreeBuilder.showDepthFirst(tree.getRootNode());
+			IndicatorAgent agent = null;
+			do{
+				agent = this.agentList.get(rng.nextInt(this.agentList.size()));
+			//AgentDecisionTreeBuilder.showDepthFirst(tree.getRootNode());
+			}while(!agent.typeOfOutcome().contains(actionList.get(actionList.size() - 1)));
 			
+			if(agent != null){
+				mutate(tree.getRootNode(),agent,actionList);
+				mutated.add(tree);
+			}
 		}
 		return mutated;
 	}

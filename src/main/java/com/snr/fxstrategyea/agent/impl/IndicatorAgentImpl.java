@@ -25,6 +25,30 @@ public abstract class IndicatorAgentImpl implements IndicatorAgent {
 		
 		return close;
 	}
+	protected List<Double> getHigh(List<OHLC> data){
+		
+		List<Double> high = new LinkedList<Double>();
+		Collections.sort(data);
+		
+		for(OHLC ohlc : data){
+			high.add(ohlc.getHigh());
+			
+		}
+		
+		return high;
+	}
+	protected List<Double> getLow(List<OHLC> data){
+		
+		List<Double> low = new LinkedList<Double>();
+		Collections.sort(data);
+		
+		for(OHLC ohlc : data){
+			low.add(ohlc.getLow());
+			
+		}
+		
+		return low;
+	}
 	protected int getTnIndex(int offset,List<?> list){
 		return (!list.isEmpty() && list.size() > offset )?list.size() - offset:list.size();
 	}
@@ -49,6 +73,11 @@ public abstract class IndicatorAgentImpl implements IndicatorAgent {
 	public void setInfoGain(double infoGain) {
 		this.infoGain = infoGain;
 		
+	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.getName();
 	}
 
 }

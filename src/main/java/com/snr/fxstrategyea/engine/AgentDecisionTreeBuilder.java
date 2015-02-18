@@ -40,8 +40,14 @@ public class AgentDecisionTreeBuilder {
 			level++;
 			for(Map.Entry<Action, DecisionTree.Node> item: node.getChildren().entrySet()){
 				if(item.getValue() == null){
-					item.setValue(DecisionTree.getNewNode(getRandomAgent(agentList, random)));
-					buildNode(item.getValue(),agentList,level,random);
+					IndicatorAgent agent = null;
+					do{
+						agent = getRandomAgent(agentList, random);
+					}while(!agent.typeOfOutcome().contains(item.getKey()) || node.getAgent().getClass().getName().equals(agent.getClass().getName()));
+					if(agent != null){
+						item.setValue(DecisionTree.getNewNode(agent));
+						buildNode(item.getValue(),agentList,level,random);
+					}
 				}
 			}
 		}else{
@@ -55,7 +61,7 @@ public class AgentDecisionTreeBuilder {
 	}
 	public static void showDepthFirst(DecisionTree.Node dt){
 
-		System.out.println(dt.getAgent().getClass().getSimpleName());
+		System.out.println(dt.getAgent().getName());
 		showChildren(dt,1);
 
 	}
@@ -65,7 +71,7 @@ public class AgentDecisionTreeBuilder {
 		for(int i = 0; i < tabSpace; i++)	tabs += "\t";
 		for(Map.Entry<Action, DecisionTree.Node> item: dt.getChildren().entrySet()){
 			if(item.getValue() != null){
-				System.out.println(tabs+item.getKey()+"."+item.getValue().getAgent().getClass().getSimpleName());
+				System.out.println(tabs+item.getKey()+"."+item.getValue().getAgent().getName());
 				if(dt.hasChildren()){
 					showChildren(item.getValue(),tabSpace + 1);
 				}

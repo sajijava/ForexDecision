@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.snr.fxstrategyea.agent.Action;
+import com.snr.fxstrategyea.agent.AgentMetric;
 import com.snr.fxstrategyea.agent.IndicatorAgent;
 
 /**
@@ -16,8 +17,18 @@ public class DecisionTree {
 
 	private Node rootNode;
 	private int depth;
+	private AgentMetric metrics;
 
 	
+	
+	public AgentMetric getMetrics() {
+		return metrics;
+	}
+
+	public void setMetrics(AgentMetric metrics) {
+		this.metrics = metrics;
+	}
+
 	public int getDepth() {
 		return depth;
 	}

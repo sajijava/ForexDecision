@@ -11,11 +11,26 @@ public class Transaction {
 		private Double sellPrice;
 		private TradeDirection dir;
 		private OrderStatus status;
-		private int units;
+		private double units;
 		private double startingBal;
 		private double endingBal;
+		private Double stopLoss;
+		private Double target;
 
 
+		
+		public Double getStopLoss() {
+			return stopLoss;
+		}
+		public void setStopLoss(Double stopLoss) {
+			this.stopLoss = stopLoss;
+		}
+		public Double getTarget() {
+			return target;
+		}
+		public void setTarget(Double target) {
+			this.target = target;
+		}
 		public Date getBuyDate() {
 			return buyDate;
 		}
@@ -54,10 +69,10 @@ public class Transaction {
 		}
 
 
-		public int getUnits() {
+		public double getUnits() {
 			return units;
 		}
-		public void setUnits(int units) {
+		public void setUnits(double units) {
 			this.units = units;
 		}
 		public double getStartingBal() {

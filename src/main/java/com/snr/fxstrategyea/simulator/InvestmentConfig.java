@@ -9,6 +9,14 @@ public class InvestmentConfig {
 	private double comission;
 	private double stopLoss;
 	private double risk;
+	private double targetRate = 1.5;
+	
+	public double getTargetRate() {
+		return targetRate;
+	}
+	public void setTargetRate(double targetRate) {
+		this.targetRate = targetRate;
+	}
 	public String getDataAbsoluteFileName() {
 		return dataAbsoluteFileName;
 	}

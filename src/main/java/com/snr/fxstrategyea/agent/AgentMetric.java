@@ -10,7 +10,6 @@ public class AgentMetric {
 	private int shortProfitableCount = 0;
 	private double longGL = 0d;
 	private double shortGL = 0d;
-	private double totalGain = 0d;
 	
 	public int getTotalTrade(){		return longCount + shortCount;	}
 	public int getTotalProfitableTrade(){		return longProfitableCount + shortProfitableCount;	}
@@ -52,10 +51,7 @@ public class AgentMetric {
 		this.shortGL += shortGL;
 	}
 	public double getTotalGain() {
-		return totalGain;
-	}
-	public void setTotalGain(double totalGain) {
-		this.totalGain = totalGain;
+		return this.getLongGL() + this.getShortGL();
 	}
 	
 	@Override
