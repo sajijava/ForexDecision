@@ -29,7 +29,7 @@ public abstract class InvestmentSimulator<T> {
 	protected AgentMetric metric = new AgentMetric();
 
 	public InvestmentSimulator(InvestmentConfig config) throws IOException, ParseException{
-		data = new LinkedList<OHLC>();
+		data = new LinkedList<OHLC>();	
 		this.invConfig = config;
 		loadData(new BufferedReader(new FileReader(this.invConfig.getDataAbsoluteFileName())));
 	}
